@@ -116,7 +116,7 @@ public class Localidad implements Serializable {
 
     @Override
     public String toString() {
-        return "co.edu.unipiloto.arquitectura.proyecto.entity.Localidad[ numerolocalidad=" + numerolocalidad + " ]";
+        return "[ numerolocalidad=" + numerolocalidad + ", nombre=" + nombre + " ]";
     }
     
 }
