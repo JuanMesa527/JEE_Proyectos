@@ -32,7 +32,7 @@ public class LocalidadServlet extends HttpServlet {
 
     @EJB
     private LocalidadFacadeLocal localidadFacade;
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -45,54 +45,65 @@ public class LocalidadServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
-        String action=request.getParameter("action");
-        
-        String numerolocalidadStr=request.getParameter("numeroLocalidad");
-        Integer numeroLocalidad = new Integer(numerolocalidadStr);
-        
-        if (action.equals("Add")) {    
-            String nombre = request.getParameter("nombre");
-            String poblacionStr = request.getParameter("poblacion");
-            Integer poblacion = new Integer(poblacionStr);
-            Localidad localidad = new Localidad(numeroLocalidad,nombre,poblacion);
-            
-            localidadFacade.create(localidad);
-            
+
+        String action = request.getParameter("action");
+        try {
+            String numerolocalidadStr = request.getParameter("numeroLocalidad");
+            Integer numeroLocalidad = new Integer(numerolocalidadStr);
+
+            if (action.equals("Add")) {
+                String nombre = request.getParameter("nombre");
+                String poblacionStr = request.getParameter("poblacion");
+                Integer poblacion = new Integer(poblacionStr);
+                Localidad localidad = new Localidad(numeroLocalidad, nombre, poblacion);
+
+                localidadFacade.create(localidad);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Edit")) {
+                String nombre = request.getParameter("nombre");
+                String poblacionStr = request.getParameter("poblacion");
+                Integer poblacion = new Integer(poblacionStr);
+                Localidad localidad = new Localidad(numeroLocalidad, nombre, poblacion);
+
+                localidadFacade.edit(localidad);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Delete")) {
+                String nombre = request.getParameter("nombre");
+                String poblacionStr = request.getParameter("poblacion");
+                Integer poblacion = new Integer(poblacionStr);
+                Localidad localidad = new Localidad(numeroLocalidad, nombre, poblacion);
+
+                localidadFacade.remove(localidad);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Search")) {
+                List localidades = new ArrayList();
+                localidades.add(localidadFacade.find(numeroLocalidad));
+
+                request.setAttribute("allLocalidades", localidades);
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            }
+        } catch (java.lang.NumberFormatException e) {
+            request.setAttribute("error", "Complete y verifique todos los campos, ERROR: " + e.getMessage());
             request.setAttribute("allLocalidades", localidadFacade.findAll());
             request.setAttribute("allProyectos", proyectoFacade.findAll());
             request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Edit")){
-            String nombre = request.getParameter("nombre");
-            String poblacionStr = request.getParameter("poblacion");
-            Integer poblacion = new Integer(poblacionStr);
-            Localidad localidad = new Localidad(numeroLocalidad,nombre,poblacion);
-            
-            localidadFacade.edit(localidad);
-            
+        } catch (javax.ejb.EJBException e) {
+            request.setAttribute("error", "ID o llave principal repetida, verifique los campos, ERROR: " + e.getMessage());
             request.setAttribute("allLocalidades", localidadFacade.findAll());
-            request.setAttribute("allProyectos", proyectoFacade.findAll());
-            request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Delete")){
-            String nombre = request.getParameter("nombre");
-            String poblacionStr = request.getParameter("poblacion");
-            Integer poblacion = new Integer(poblacionStr);
-            Localidad localidad = new Localidad(numeroLocalidad,nombre,poblacion);
-            
-            localidadFacade.remove(localidad);
-            
-            request.setAttribute("allLocalidades", localidadFacade.findAll());
-            request.setAttribute("allProyectos", proyectoFacade.findAll());
-            request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Search")){
-            List localidades=new ArrayList();
-            localidades.add(localidadFacade.find(numeroLocalidad));
-            
-            request.setAttribute("allLocalidades", localidades);
             request.setAttribute("allProyectos", proyectoFacade.findAll());
             request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
         }
-        
+
 //        try (PrintWriter out = response.getWriter()) {
 //            /* TODO output your page here. You may use following sample code. */
 //            out.println("<!DOCTYPE html>");

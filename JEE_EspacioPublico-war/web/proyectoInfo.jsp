@@ -13,6 +13,7 @@
         <title>proyecto Information</title>
     </head>
     <body>
+        <b name="error">${error}</b>
         <h1>Informacion de la localidad</h1>
         <form action="./LocalidadServlet" method="POST"> 
             <table>

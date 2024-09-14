@@ -31,7 +31,7 @@ public class ProyectoServlet extends HttpServlet {
 
     @EJB
     private LocalidadFacadeLocal localidadFacade;
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -44,63 +44,81 @@ public class ProyectoServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
-        String action=request.getParameter("action");
-        
-        String proyectoidStr=request.getParameter("proyectoId");
-        Integer proyectoId = new Integer(proyectoidStr);
-        
-        if (action.equals("Add")) {    
-            String nombre = request.getParameter("nombre");
-            String descripcion = request.getParameter("descripcion");
-            String presupuestoStr = request.getParameter("presupuesto");
-            Double presupuesto = new Double(presupuestoStr);
-            String numerolocalidadStr = request.getParameter("numeroLocalidad");
-            Integer numeroLocalidad = new Integer(numerolocalidadStr);
-            Proyecto proyecto = new Proyecto(proyectoId,nombre,descripcion,presupuesto,localidadFacade.find(numeroLocalidad));
-            
-            proyectoFacade.create(proyecto);
-            
+
+        String action = request.getParameter("action");
+        try {
+            String proyectoidStr = request.getParameter("proyectoId");
+            Integer proyectoId = new Integer(proyectoidStr);
+
+            if (action.equals("Add")) {
+                String nombre = request.getParameter("nombre");
+                String descripcion = request.getParameter("descripcion");
+                String presupuestoStr = request.getParameter("presupuesto");
+                Double presupuesto = new Double(presupuestoStr);
+                String numerolocalidadStr = request.getParameter("numeroLocalidad");
+                Integer numeroLocalidad = new Integer(numerolocalidadStr);
+                if (localidadFacade.find(numeroLocalidad) == null) {
+                    request.setAttribute("error", "Localidad inexistente en DB, por favor verifique la informacion");
+                    request.setAttribute("allLocalidades", localidadFacade.findAll());
+                    request.setAttribute("allProyectos", proyectoFacade.findAll());
+                    request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+                    return;
+                }
+                Proyecto proyecto = new Proyecto(proyectoId, nombre, descripcion, presupuesto, localidadFacade.find(numeroLocalidad));
+
+                proyectoFacade.create(proyecto);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Edit")) {
+                String nombre = request.getParameter("nombre");
+                String descripcion = request.getParameter("descripcion");
+                String presupuestoStr = request.getParameter("presupuesto");
+                Double presupuesto = new Double(presupuestoStr);
+                String numerolocalidadStr = request.getParameter("numeroLocalidad");
+                Integer numeroLocalidad = new Integer(numerolocalidadStr);
+                Proyecto proyecto = new Proyecto(proyectoId, nombre, descripcion, presupuesto, localidadFacade.find(numeroLocalidad));
+
+                proyectoFacade.edit(proyecto);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Delete")) {
+                String nombre = request.getParameter("nombre");
+                String descripcion = request.getParameter("descripcion");
+                String presupuestoStr = request.getParameter("presupuesto");
+                Double presupuesto = new Double(presupuestoStr);
+                String numerolocalidadStr = request.getParameter("numeroLocalidad");
+                Integer numeroLocalidad = new Integer(numerolocalidadStr);
+                Proyecto proyecto = new Proyecto(proyectoId, nombre, descripcion, presupuesto, localidadFacade.find(numeroLocalidad));
+
+                proyectoFacade.remove(proyecto);
+
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.setAttribute("allProyectos", proyectoFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            } else if (action.equals("Search")) {
+                List proyectos = new ArrayList();
+                proyectos.add(proyectoFacade.find(proyectoId));
+
+                request.setAttribute("allProyectos", proyectos);
+                request.setAttribute("allLocalidades", localidadFacade.findAll());
+                request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
+            }
+        } catch (java.lang.NumberFormatException e) {
+            request.setAttribute("error", "Complete y verifique todos los campos, ERROR: " + e.getMessage());
             request.setAttribute("allLocalidades", localidadFacade.findAll());
             request.setAttribute("allProyectos", proyectoFacade.findAll());
             request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Edit")){
-            String nombre = request.getParameter("nombre");
-            String descripcion = request.getParameter("descripcion");
-            String presupuestoStr = request.getParameter("presupuesto");
-            Double presupuesto = new Double(presupuestoStr);
-            String numerolocalidadStr = request.getParameter("numeroLocalidad");
-            Integer numeroLocalidad = new Integer(numerolocalidadStr);
-            Proyecto proyecto = new Proyecto(proyectoId,nombre,descripcion,presupuesto,localidadFacade.find(numeroLocalidad));
-            
-            proyectoFacade.edit(proyecto);
-            
+        } catch (javax.ejb.EJBException e) {
+            request.setAttribute("error", "ID o llave principal repetida, verifique los campos, ERROR: " + e.getMessage());
             request.setAttribute("allLocalidades", localidadFacade.findAll());
             request.setAttribute("allProyectos", proyectoFacade.findAll());
-            request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Delete")){
-            String nombre = request.getParameter("nombre");
-            String descripcion = request.getParameter("descripcion");
-            String presupuestoStr = request.getParameter("presupuesto");
-            Double presupuesto = new Double(presupuestoStr);
-            String numerolocalidadStr = request.getParameter("numeroLocalidad");
-            Integer numeroLocalidad = new Integer(numerolocalidadStr);
-            Proyecto proyecto = new Proyecto(proyectoId,nombre,descripcion,presupuesto,localidadFacade.find(numeroLocalidad));
-            
-            proyectoFacade.remove(proyecto);
-            
-            request.setAttribute("allLocalidades", localidadFacade.findAll());
-            request.setAttribute("allProyectos", proyectoFacade.findAll());
-            request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
-        } else if(action.equals("Search")){
-            List proyectos=new ArrayList();
-            proyectos.add(proyectoFacade.find(proyectoId));
-            
-            request.setAttribute("allProyectos", proyectos);
-            request.setAttribute("allLocalidades", localidadFacade.findAll());
             request.getRequestDispatcher("proyectoInfo.jsp").forward(request, response);
         }
-        
+
 //        try (PrintWriter out = response.getWriter()) {
 //            /* TODO output your page here. You may use following sample code. */
 //            out.println("<!DOCTYPE html>");
